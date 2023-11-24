@@ -1,16 +1,11 @@
-import {
-  AnyAction,
-  Dispatch,
-  MiddlewareAPI,
-  configureStore,
-} from "@reduxjs/toolkit";
+import { AnyAction, Dispatch, configureStore } from "@reduxjs/toolkit";
 
 import { useDispatch } from "react-redux";
 
-import { addMessage, chatMiddleware, chatSlice } from "./chatSlice";
+import { chatMiddleware, chatSlice } from "./chatSlice";
 import { Message, socket } from "../utils/socket";
 
-const loggingMiddleware = (storeAPI: MiddlewareAPI) => {
+const loggingMiddleware = () => {
   socket.onAny((event: string, message: Message<never>) => {
     if (message?.meta?.error) {
       console.error("⬇️ Inbound", event, message.data, message.meta.error);

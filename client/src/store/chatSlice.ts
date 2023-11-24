@@ -18,7 +18,7 @@ export interface ChatMessage {
 
 export const getChatMessages = createAsyncThunk(
   "chat/getChatMessages",
-  async (thunkAPI) => {
+  async () => {
     const result = await asyncEmit<ChatMessage[]>("getChatMessages");
     return result.data;
   }
@@ -43,7 +43,7 @@ export const sendChatMessage = createAsyncThunk(
 );
 
 interface ChatState {
-  loading: "idle" | "pending" | "succeeded" | "failed";
+  loading: "idle" | "pending";
 }
 
 const initialState = {

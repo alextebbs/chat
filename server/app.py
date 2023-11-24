@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import os
@@ -7,26 +7,26 @@ import random
 import time
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+# app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 CORS(app, resources={r"/socket.io/*": {"origins": os.getenv("CORS_ALLOWED_ORIGINS")}})
 
 socketio = SocketIO(app, cors_allowed_origins=os.getenv("CORS_ALLOWED_ORIGINS"))
 
-initial_messages = []
-
-with open("messages.txt", "r") as file:
-    id = 0
-
-    for line in file:
-        initial_messages.append(
-            {"id": str(id), "content": line.strip(), "user": "The Flask Server"}
-        )
-        id += 1
-
 
 @socketio.on("getChatMessages")
 def handle_getMessages(message):
+    initial_messages = []
+
+    with open("messages.txt", "r") as file:
+        id = 0
+
+        for line in file:
+            initial_messages.append(
+                {"id": str(id), "content": line.strip(), "user": "The Flask Server"}
+            )
+            id += 1
+
     emit("getChatMessages", {"eventName": "getChatMessages", "data": initial_messages})
 
 
@@ -35,6 +35,7 @@ def handle_sendMessage(message):
     event_name = "sendChatMessage"
 
     if random.random() < 0.5 and message["user"] == "error":
+        time.sleep(0.4)
         if random.random() < 0.5:
             emit(
                 event_name,

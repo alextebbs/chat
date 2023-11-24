@@ -1,4 +1,4 @@
-This is my example chat room.
+This is an example chat room.
 It uses React, Redux, Socket.io, and Flask.
 To get these initial chats, the client sends a message event to the server, which responds with a list of chats.
 The list is static right now, but could be dynamically generated from a database.
