@@ -34,17 +34,20 @@ def handle_getMessages(message):
 def handle_sendMessage(message):
     event_name = "sendChatMessage"
 
-    if random.random() < 0.2:
-        emit(
-            event_name,
-            {
-                "eventName": event_name,
-                "data": None,
-                "meta": {"error": "Server error occurred. Message not broadcast."},
-            },
-        )
+    if random.random() < 0.5 and message["user"] == "error":
+        if random.random() < 0.5:
+            emit(
+                event_name,
+                {
+                    "eventName": event_name,
+                    "data": None,
+                    "meta": {"error": "Server error occurred. Message not broadcast."},
+                },
+            )
+        else:
+            return  # time out
 
-    elif random.random() > 0.4:
+    else:
         emit(
             event_name,
             {
