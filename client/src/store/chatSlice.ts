@@ -2,9 +2,12 @@ import {
   createAsyncThunk,
   createSlice,
   createEntityAdapter,
+  MiddlewareAPI,
+  Dispatch,
+  AnyAction,
 } from "@reduxjs/toolkit";
 import { RootState } from ".";
-import { Message, asyncEmit } from "../utils/socket";
+import { Message, asyncEmit, socket } from "../utils/socket";
 
 export interface ChatMessage {
   id: string;
@@ -13,14 +16,11 @@ export interface ChatMessage {
   error?: string;
 }
 
-export const getChatMessage = createAsyncThunk(
+export const getChatMessages = createAsyncThunk(
   "chat/getChatMessages",
   async (thunkAPI) => {
-    const result = await asyncEmit<null, ChatMessage[]>({
-      eventName: "getChatMessages",
-      data: null,
-    });
-    return result;
+    const result = await asyncEmit<ChatMessage[]>("getChatMessages");
+    return result.data;
   }
 );
 
@@ -28,13 +28,14 @@ export const sendChatMessage = createAsyncThunk(
   "chat/sendChatMessage",
   async (message: ChatMessage, thunkAPI) => {
     try {
-      const result = await asyncEmit<ChatMessage, Message<ChatMessage>>({
-        eventName: "sendChatMessage",
-        data: message,
-      });
+      const result = await asyncEmit<ChatMessage, ChatMessage>(
+        "sendChatMessage",
+        message
+      );
       return result.data;
     } catch (error: unknown) {
-      // How am I supposed to do this properly? This is nuts.
+      console.log(error);
+      // How am I supposed to do this properly? .
       message.error = (error as Message<ChatMessage>).meta?.error;
       return thunkAPI.rejectWithValue(message);
     }
@@ -59,9 +60,25 @@ export const chatSlice = createSlice({
     addMessage: chatAdapter.upsertOne,
   },
   extraReducers: (builder) => {
-    builder.addCase(getChatMessage.fulfilled, chatAdapter.setAll);
-    builder.addCase(sendChatMessage.fulfilled, chatAdapter.upsertOne);
+    builder.addCase(getChatMessages.pending, (state) => {
+      state.loading = "pending";
+    });
+    builder.addCase(getChatMessages.fulfilled, (state, action) => {
+      state.loading = "idle";
+      chatAdapter.setAll(state, action.payload);
+    });
+    builder.addCase(getChatMessages.rejected, (state) => {
+      state.loading = "idle";
+    });
+
+    builder.addCase(sendChatMessage.pending, (state) => {
+      state.loading = "pending";
+    });
+    builder.addCase(sendChatMessage.fulfilled, (state) => {
+      state.loading = "idle";
+    });
     builder.addCase(sendChatMessage.rejected, (state, action) => {
+      state.loading = "idle";
       chatAdapter.upsertOne(state, action.payload as ChatMessage);
     });
   },
@@ -72,3 +89,15 @@ export const { selectAll: selectAllChatMessages } = chatAdapter.getSelectors(
 );
 
 export const { addMessage } = chatSlice.actions;
+
+export const chatMiddleware = (storeAPI: MiddlewareAPI) => {
+  socket.on("sendChatMessage", function (message) {
+    // error gets handled elsewhere
+    if (message?.meta?.error) return;
+    storeAPI.dispatch(addMessage(message.data));
+  });
+
+  return (next: Dispatch<AnyAction>) => (action: AnyAction) => {
+    return next(action);
+  };
+};

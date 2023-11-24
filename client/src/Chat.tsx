@@ -1,24 +1,33 @@
 // import { useGetPokemonByNameQuery } from "./store";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { nanoid } from "nanoid";
-import { useAppDispatch } from "./store";
+import { RootState, useAppDispatch } from "./store";
 import {
   selectAllChatMessages,
-  getChatMessage,
+  getChatMessages,
   sendChatMessage,
 } from "./store/chatSlice";
+import { getRandomName } from "./utils/getRandomUser";
+import Loader from "./Loader";
 
 function Chat() {
-  const [user, setUser] = useState("Me");
+  const [user, setUser] = useState(getRandomName());
   const [content, setContent] = useState("Hello Server");
   const messages = useSelector(selectAllChatMessages);
+  const loadingState = useSelector((state: RootState) => state.chat.loading);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getChatMessage());
+    dispatch(getChatMessages());
   }, [dispatch]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  });
 
   const handleSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,20 +48,26 @@ function Chat() {
             className="px-4 pb-1 mb-1 border-b border-neutral-900"
           >
             <span className="text-white pr-3 text-bold">{message.user}</span>
-            <span className="text-neutral-400">{message.content}</span>
+            <span className="text-neutral-400 pr-3">{message.content}</span>
             {message.error && (
-              <span className="pl-3 text-red-500">{message.error}</span>
+              <span className="text-red-500">{message.error}</span>
             )}
           </div>
         ))}
+        {loadingState === "pending" && (
+          <div className="px-4 pt-2 pb-3 text-neutral-400">
+            <Loader />
+          </div>
+        )}
+        <div ref={scrollRef} />
       </div>
 
       <form
-        className="p-4 border-t border-neutral-600 flex gap-2"
+        className="p-4 border-t-2 border-neutral-600 flex gap-2"
         onSubmit={handleSubmitForm}
       >
         <input
-          className="bg-transparent border border-neutral-600 rounded-md px-4 py-1 text-white w-[120px]"
+          className="bg-transparent border-2 border-neutral-600 rounded-md px-4 py-1 text-white w-[120px]"
           type="text"
           placeholder="Name"
           onChange={(e) => setUser(e.target.value)}
@@ -60,13 +75,13 @@ function Chat() {
         />
         <input
           type="text"
-          className="bg-transparent border border-neutral-600 rounded-md px-4 py-1 text-white flex-1"
+          className="bg-transparent border-2 border-neutral-600 rounded-md px-4 py-1 text-white flex-1"
           placeholder="Message"
           onChange={(e) => setContent(e.target.value)}
           value={content}
         />
         <input
-          className="border-blue-600 border bg-transparent rounded-md px-4 py-1 text-blue-600 hover:bg-blue-600 hover:text-white"
+          className="border-blue-600 border-2 bg-transparent rounded-md px-4 py-1 text-blue-600 hover:bg-blue-600 hover:text-white"
           type="submit"
           value="Send"
         />

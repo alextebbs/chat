@@ -10,30 +10,32 @@ export interface Message<T> {
   };
 }
 
-export function asyncEmit<Data, ReturnData>(
-  message: Message<Data>
-): Promise<ReturnData> {
+export function asyncEmit<ReturnData, Data = null>(
+  eventName: string,
+  data: Data | null = null
+): Promise<Message<ReturnData>> {
   return new Promise((resolve, reject) => {
-    const { eventName, data } = message;
-
     socket.emit(eventName, data);
-    // console.log("⬆️ Outbound", message);
 
-    socket.on(eventName, (result) => {
-      socket.off(eventName);
+    socket.once(eventName, (result: Message<ReturnData>) => {
+      console.log("RESULT", result);
 
       if (result?.meta?.error) {
-        // console.error("⬇️ Inbound", { eventName, data: result });
-        reject(result);
+        console.log("ERROR", result);
+        reject({ eventName, data, meta: { error: result.meta.error } });
       } else {
         resolve(result);
-        // console.log("⬇️ Inbound", { eventName, data: result });
       }
     });
 
-    // setTimeout(
-    //   () => reject({ eventName, data, meta: { error: "Timed out" } }),
-    //   1000
-    // );
+    setTimeout(
+      () =>
+        reject({
+          eventName,
+          data,
+          meta: { error: "Request timed out after one second." },
+        }),
+      1000
+    );
   });
 }

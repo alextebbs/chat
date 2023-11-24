@@ -7,26 +7,20 @@ import {
 
 import { useDispatch } from "react-redux";
 
-import { addMessage, chatSlice } from "./chatSlice";
-import { socket } from "../utils/socket";
+import { addMessage, chatMiddleware, chatSlice } from "./chatSlice";
+import { Message, socket } from "../utils/socket";
 
-const socketMiddleware = (storeAPI: MiddlewareAPI) => {
-  socket.removeAllListeners();
-
-  socket.onAny((event, data) => {
-    if (data?.meta?.error) {
-      console.error("⬇️ Inbound", { event, data });
+const loggingMiddleware = (storeAPI: MiddlewareAPI) => {
+  socket.onAny((event: string, message: Message<never>) => {
+    if (message?.meta?.error) {
+      console.error("⬇️ Inbound", event, message.data, message.meta.error);
     } else {
-      console.log("⬇️ Inbound", { event, data });
+      console.log("⬇️ Inbound", event, message.data);
     }
   });
 
-  socket.onAnyOutgoing((event, data) => {
-    console.log("⬆️ Outbound", { event, data });
-  });
-
-  socket.on("recieveChatMessage", function (data) {
-    storeAPI.dispatch(addMessage(data));
+  socket.onAnyOutgoing((event, message) => {
+    console.log("⬆️ Outbound", event, message);
   });
 
   socket.on("connect", () => {
@@ -50,7 +44,7 @@ export const store = configureStore({
     getDefaultMiddleware({
       immutableCheck: false,
       serializableCheck: false,
-    }).concat(socketMiddleware),
+    }).concat([loggingMiddleware, chatMiddleware]),
   devTools: process.env.NODE_ENV === "development",
 });
 
