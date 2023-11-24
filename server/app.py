@@ -14,6 +14,43 @@ CORS(app, resources={r"/socket.io/*": {"origins": os.getenv("CORS_ALLOWED_ORIGIN
 socketio = SocketIO(app, cors_allowed_origins=os.getenv("CORS_ALLOWED_ORIGINS"))
 
 
+@app.route("/")
+def index():
+    return "Index Page"
+
+
+@socketio.on("connect")
+def handle_connect():
+    emit(
+        "sendChatMessage",
+        {
+            "eventName": "sendChatMessage",
+            "data": {
+                "id": str(uuid.uuid4()),
+                "content": "Someone has connected to the chat",
+                "user": "The Flask Server",
+            },
+        },
+        broadcast=True,
+    )
+
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    emit(
+        "sendChatMessage",
+        {
+            "eventName": "sendChatMessage",
+            "data": {
+                "id": str(uuid.uuid4()),
+                "content": "Someone has left the chat.",
+                "user": "The Flask Server",
+            },
+        },
+        broadcast=True,
+    )
+
+
 @socketio.on("getChatMessages")
 def handle_getMessages(message):
     initial_messages = []
@@ -74,4 +111,4 @@ def handle_sendMessage(message):
 
 
 if __name__ == "__main__":
-    socketio.run(app)
+    socketio.run(app, allow_unsafe_werkzeug=True)

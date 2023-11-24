@@ -13,7 +13,7 @@ import Loader from "./Loader";
 
 function Chat() {
   const [user, setUser] = useState(getRandomName());
-  const [content, setContent] = useState("Hello Server");
+  const [content, setContent] = useState("");
   const messages = useSelector(selectAllChatMessages);
   const loadingState = useSelector((state: RootState) => state.chat.loading);
 
@@ -40,7 +40,7 @@ function Chat() {
   };
 
   return (
-    <div className="h-[100svh] flex flex-col bg-black text-white font-mono">
+    <div className="h-[100dvh] flex flex-col bg-black text-white font-mono text-xs sm:text-base">
       <div className="flex-1 pt-2 overflow-auto">
         {messages.map((message) => (
           <div
@@ -63,11 +63,11 @@ function Chat() {
       </div>
 
       <form
-        className="p-4 border-t-2 border-neutral-600 flex gap-2"
+        className="p-2 sm:p-4 border-t-2 border-neutral-600 flex gap-2"
         onSubmit={handleSubmitForm}
       >
         <input
-          className="bg-transparent border-2 border-neutral-600 rounded-md px-4 py-1 text-white w-[120px]"
+          className="bg-transparent border-2 border-neutral-600 rounded-md px-2 sm:px-4 py-1 text-white w-[70px] sm:w-[120px]"
           type="text"
           placeholder="Name"
           onChange={(e) => setUser(e.target.value)}
@@ -75,13 +75,13 @@ function Chat() {
         />
         <input
           type="text"
-          className="bg-transparent border-2 border-neutral-600 rounded-md px-4 py-1 text-white flex-1"
+          className="bg-transparent border-2 border-neutral-600 rounded-md px-2 sm:px-4 py-1 text-white flex-1"
           placeholder="Message"
           onChange={(e) => setContent(e.target.value)}
           value={content}
         />
         <input
-          className="border-blue-600 border-2 bg-transparent rounded-md px-4 py-1 text-blue-600 hover:bg-blue-600 hover:text-white"
+          className="border-blue-600 border-2 bg-transparent rounded-md px-2 sm:px-4 py-1 text-blue-600 hover:bg-blue-600 hover:text-white"
           type="submit"
           value="Send"
         />

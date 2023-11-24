@@ -18,8 +18,6 @@ export function asyncEmit<ReturnData, Data = null>(
     socket.emit(eventName, data);
 
     socket.once(eventName, (result: Message<ReturnData>) => {
-      console.log("RESULT", result);
-
       if (result?.meta?.error) {
         console.log("ERROR", result);
         reject({ eventName, data, meta: { error: result.meta.error } });
