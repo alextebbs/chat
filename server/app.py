@@ -7,7 +7,7 @@ import random
 import uuid
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "secret!"
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 CORS(app, resources={r"/socket.io/*": {"origins": os.getenv("CORS_ALLOWED_ORIGINS")}})
 
