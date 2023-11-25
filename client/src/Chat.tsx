@@ -18,6 +18,7 @@ function Chat() {
   const loadingState = useSelector((state: RootState) => state.chat.loading);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const dispatch = useAppDispatch();
 
@@ -36,6 +37,7 @@ function Chat() {
 
     const id = nanoid();
     dispatch(sendChatMessage({ id, user, content }));
+    inputRef.current?.focus();
     setContent("");
   };
 
@@ -77,6 +79,8 @@ function Chat() {
           type="text"
           className="bg-transparent border-2 border-neutral-600 rounded-md px-2 sm:px-4 py-1 text-white flex-1"
           placeholder="Message"
+          autoFocus
+          ref={inputRef}
           onChange={(e) => setContent(e.target.value)}
           value={content}
         />
