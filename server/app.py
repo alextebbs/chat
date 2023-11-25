@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import os
@@ -16,7 +16,7 @@ socketio = SocketIO(app, cors_allowed_origins=os.getenv("CORS_ALLOWED_ORIGINS"))
 
 @app.route("/")
 def index():
-    return "Index Page"
+    return render_template("./index.html")
 
 
 @socketio.on("connect")
