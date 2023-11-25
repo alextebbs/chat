@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  background: #000;
+}
+
 @font-face {
   font-family: "Geist Mono";
   src: url("/font/GeistMono-Regular.woff2") format("woff2"),
