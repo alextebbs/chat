@@ -16,11 +16,26 @@ function Chat() {
   const [content, setContent] = useState("");
   const messages = useSelector(selectAllChatMessages);
   const loadingState = useSelector((state: RootState) => state.chat.loading);
+  const [height, setHeight] = useState(visualViewport && visualViewport.height);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const dispatch = useAppDispatch();
+
+  // Mobile web browsers are fucking broken
+  useEffect(() => {
+    visualViewport &&
+      visualViewport.addEventListener("resize", () => {
+        window.scrollTo(0, 0);
+        visualViewport && setHeight(visualViewport.height);
+      });
+
+    window.addEventListener("scroll", (e) => {
+      e.preventDefault();
+      window.scrollTo(0, 0);
+    });
+  }, []);
 
   useEffect(() => {
     dispatch(getChatMessages());
@@ -42,12 +57,15 @@ function Chat() {
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-black text-white font-mono text-xs sm:text-base overflow-hidden">
-      <div className="flex-1 pt-2 overflow-auto">
+    <div
+      className="flex flex-col text-white font-mono text-xs sm:text-base overflow-hidden"
+      style={{ height: height || "100dvh" }}
+    >
+      <div className="flex-1 pt-1 overflow-auto">
         {messages.map((message) => (
           <div
             key={message.id}
-            className="px-4 pb-1 mb-1 border-b border-neutral-900"
+            className="px-4 pb-1 pt-1 border-b border-neutral-900"
           >
             <span className="text-white pr-3 text-bold">{message.user}</span>
             <span className="text-neutral-400 pr-3">{message.content}</span>
