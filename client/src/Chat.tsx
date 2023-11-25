@@ -42,7 +42,7 @@ function Chat() {
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-black text-white font-mono text-xs sm:text-base">
+    <div className="h-[100dvh] flex flex-col bg-black text-white font-mono text-xs sm:text-base overflow-hidden">
       <div className="flex-1 pt-2 overflow-auto">
         {messages.map((message) => (
           <div
