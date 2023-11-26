@@ -94,7 +94,12 @@ function Chat() {
             )}
           </div>
         ))}
-        <div className="flex text-xs text-neutral-500 px-4 py-2">
+        <div className="flex text-xs text-neutral-700 px-4 py-2 items-center">
+          {loadingState === "pending" && (
+            <div className="pr-3 text-neutral-400">
+              <Loader />
+            </div>
+          )}
           {typingUsers.length > 0 && (
             <div className="mr-auto">
               {formatNames(typingUsers)} {typingUsers.length > 1 ? "are" : "is"}{" "}
@@ -102,7 +107,7 @@ function Chat() {
             </div>
           )}
 
-          {connectedUsers && (
+          {connectedUsers > 0 && (
             <div className="ml-auto">
               {connectedUsers > 1
                 ? `There are ${connectedUsers} people here.`
@@ -110,16 +115,11 @@ function Chat() {
             </div>
           )}
         </div>
-        {loadingState === "pending" && (
-          <div className="px-4 pt-2 pb-3 text-neutral-400">
-            <Loader />
-          </div>
-        )}
         <div ref={scrollRef} />
       </div>
 
       <form
-        className="p-2 sm:p-4 sm:pt-2 border-t-2 border-neutral-600 flex gap-2 flex-col"
+        className="p-2 sm:p-4 border-t-2 border-neutral-600 flex gap-2 flex-col"
         onSubmit={handleSubmitForm}
       >
         <div className="flex gap-2">

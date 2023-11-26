@@ -33,7 +33,7 @@ export function asyncEmit<ReturnData, Data = null>(
           data,
           meta: { error: "Request timed out after one second." },
         }),
-      1000
+      1500
     );
   });
 }

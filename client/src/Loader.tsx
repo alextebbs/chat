@@ -1,8 +1,8 @@
 function Loader() {
   return (
     <svg
-      width="40"
-      height="10"
+      width="30"
+      height="8"
       viewBox="0 0 120 30"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
