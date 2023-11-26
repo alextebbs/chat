@@ -12,7 +12,7 @@ import {
 import { getRandomName } from "./utils/getRandomUser";
 import Loader from "./Loader";
 
-function formatNames(names) {
+function formatNames(names: string[]) {
   if (names.length === 0) {
     return "";
   } else if (names.length === 1) {
