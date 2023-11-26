@@ -42,12 +42,22 @@ export const sendChatMessage = createAsyncThunk(
   }
 );
 
+export const isTyping = (user: string) => {
+  return () => {
+    socket.emit("isTyping", user);
+  };
+};
+
 interface ChatState {
   loading: "idle" | "pending";
+  connectedUsers: number;
+  typingUsers: string[];
 }
 
 const initialState = {
   loading: "idle",
+  connectedUsers: 0,
+  typingUsers: [],
 } as ChatState;
 
 const chatAdapter = createEntityAdapter<ChatMessage>();
@@ -58,6 +68,12 @@ export const chatSlice = createSlice({
   initialState: chatAdapter.getInitialState(initialState),
   reducers: {
     addMessage: chatAdapter.upsertOne,
+    updateConnectedUsers: (state, action) => {
+      state.connectedUsers = action.payload;
+    },
+    updateTypingUsers: (state, action) => {
+      state.typingUsers = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getChatMessages.pending, (state) => {
@@ -88,13 +104,24 @@ export const { selectAll: selectAllChatMessages } = chatAdapter.getSelectors(
   (state: RootState) => state.chat
 );
 
-export const { addMessage } = chatSlice.actions;
+export const { addMessage, updateConnectedUsers, updateTypingUsers } =
+  chatSlice.actions;
 
 export const chatMiddleware = (storeAPI: MiddlewareAPI) => {
   socket.on("sendChatMessage", function (message) {
     // error gets handled elsewhere
     if (message?.meta?.error) return;
     storeAPI.dispatch(addMessage(message.data));
+  });
+
+  socket.on("updateConnectedUsers", function (message) {
+    // error gets handled elsewhere
+    storeAPI.dispatch(updateConnectedUsers(message.data));
+  });
+
+  socket.on("updateTypingUsers", function (message) {
+    // error gets handled elsewhere
+    storeAPI.dispatch(updateTypingUsers(message.data));
   });
 
   return (next: Dispatch<AnyAction>) => (action: AnyAction) => {
