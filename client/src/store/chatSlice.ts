@@ -76,27 +76,30 @@ export const chatSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getChatMessages.pending, (state) => {
-      state.loading = "pending";
-    });
-    builder.addCase(getChatMessages.fulfilled, (state, action) => {
-      state.loading = "idle";
-      chatAdapter.setAll(state, action.payload);
-    });
-    builder.addCase(getChatMessages.rejected, (state) => {
-      state.loading = "idle";
-    });
+    // getChatMessages
+    builder
+      .addCase(getChatMessages.pending, (state) => {
+        state.loading = "pending";
+      })
+      .addCase(getChatMessages.fulfilled, (state, action) => {
+        state.loading = "idle";
+        chatAdapter.setAll(state, action.payload);
+      })
+      .addCase(getChatMessages.rejected, (state) => {
+        state.loading = "idle";
+      })
 
-    builder.addCase(sendChatMessage.pending, (state) => {
-      state.loading = "pending";
-    });
-    builder.addCase(sendChatMessage.fulfilled, (state) => {
-      state.loading = "idle";
-    });
-    builder.addCase(sendChatMessage.rejected, (state, action) => {
-      state.loading = "idle";
-      chatAdapter.upsertOne(state, action.payload as ChatMessage);
-    });
+      // sendChatMessage
+      .addCase(sendChatMessage.pending, (state) => {
+        state.loading = "pending";
+      })
+      .addCase(sendChatMessage.fulfilled, (state) => {
+        state.loading = "idle";
+      })
+      .addCase(sendChatMessage.rejected, (state, action) => {
+        state.loading = "idle";
+        chatAdapter.upsertOne(state, action.payload as ChatMessage);
+      });
   },
 });
 
